@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% load estoque_tags %}
+{% block titulo %}Movimentações{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><h1>Movimentações</h1><p>{{ total }} registro{{ total|pluralize }}. Livro-razão do estoque: nada é editado, só lançado.</p></div>
+<div class="actions"><a class="btn" href="{% url_com export='csv' %}"><svg class="icon"><use href="#i-download"/></svg>CSV</a>{% if pode_editar %}<a class="btn" href="{% url 'transferencia_nova' %}">Transferir</a><a class="btn" href="{% url 'mov_nova' 'ajuste' %}">Ajuste</a><a class="btn" href="{% url 'mov_nova' 'saida' %}">Saída</a><a class="btn primary" href="{% url 'mov_nova' 'entrada' %}"><svg class="icon"><use href="#i-plus"/></svg>Entrada</a>{% endif %}</div></div>
+<form class="filters card" method="get">
+<div class="f grow"><label for="q">Produto ou documento</label><input class="input" id="q" type="search" name="q" value="{{ request.GET.q }}"></div>
+<div class="f"><label for="tipo">Tipo</label><select class="input" id="tipo" name="tipo"><option value="">Todos</option>{% for k,l in tipos %}<option value="{{ k }}" {% if request.GET.tipo == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+<div class="f"><label for="deposito">Depósito</label><select class="input" id="deposito" name="deposito"><option value="">Todos</option>{% for d in depositos %}<option value="{{ d.pk }}" {% if request.GET.deposito == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.nome }}</option>{% endfor %}</select></div>
+<div class="f"><label for="de">De</label><input class="input" id="de" type="date" name="de" value="{{ request.GET.de }}"></div>
+<div class="f"><label for="ate">Até</label><input class="input" id="ate" type="date" name="ate" value="{{ request.GET.ate }}"></div>
+<div class="actions"><button class="btn primary">Filtrar</button>{% if request.GET %}<a class="btn" href="{% url 'mov_lista' %}">Limpar</a>{% endif %}</div></form>
+<div class="card flush"><div class="table-wrap"><table><thead><tr><th>Data</th><th>Produto</th><th>Tipo</th><th>Depósito</th><th class="num">Quantidade</th><th>Documento / observação</th><th>Usuário</th></tr></thead><tbody>
+{% for m in pagina %}<tr><td class="small">{{ m.data|date:"d/m/Y H:i" }}</td><td><a href="{% url 'produto_detalhe' m.produto_id %}"><b>{{ m.produto.nome }}</b></a><br><span class="muted small">{{ m.produto.sku }}</span></td>
+<td><span class="badge {% if m.tipo == 'entrada' %}b-ok{% elif m.tipo == 'saida' %}b-info{% elif m.tipo == 'ajuste' %}b-warn{% else %}b-mute{% endif %}">{{ m.get_tipo_display }}</span>{% if m.motivo %}<br><span class="muted small">{{ m.get_motivo_display }}</span>{% endif %}</td>
+<td>{{ m.deposito.nome }}</td><td class="num {% if m.quantidade > 0 %}qtd-pos{% else %}qtd-neg{% endif %}">{{ m.quantidade|sinal }}</td><td class="small">{% if m.documento %}<b>{{ m.documento }}</b> {% endif %}<span class="muted">{{ m.observacao }}</span></td><td class="small muted">{{ m.usuario.username|default:"sistema" }}</td></tr>
+{% empty %}<tr><td colspan="7"><div class="empty"><svg class="icon"><use href="#i-empty"/></svg><p>Nenhuma movimentação encontrada.</p></div></td></tr>{% endfor %}</tbody></table></div>{% include "_paginacao.html" %}</div>
+{% endblock %}

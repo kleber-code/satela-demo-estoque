@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}Usuários e papéis{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><h1>Usuários e papéis</h1><p><b>Administrador</b>: tudo, inclusive excluir e gerenciar papéis. <b>Operador</b>: lança movimentações, compras e inventários. <b>Somente leitura</b>: consulta e exporta.</p></div></div>
+<div class="card flush"><div class="table-wrap"><table><thead><tr><th>Usuário</th><th>Nome</th><th>Papel</th><th>Último acesso</th></tr></thead><tbody>
+{% for u, p in lista %}<tr><td><b>{{ u.username }}</b></td><td>{{ u.get_full_name|default:"—" }}</td><td>{% if u.is_superuser or u == request.user %}<span class="badge b-ok">{{ p.label }}</span>{% else %}<form class="tiny-form" method="post">{% csrf_token %}<input type="hidden" name="user_id" value="{{ u.pk }}"><label class="sr-only" for="p{{ u.pk }}">Papel de {{ u.username }}</label><select class="input" id="p{{ u.pk }}" name="papel">{% for k, l in papeis %}<option value="{{ k }}" {% if p == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select><button class="btn sm">Salvar</button></form>{% endif %}</td><td class="small muted">{{ u.last_login|date:"d/m/Y H:i"|default:"—" }}</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

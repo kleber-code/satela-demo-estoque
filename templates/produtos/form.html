@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}{% if produto %}Editar {{ produto.sku }}{% else %}Novo produto{% endif %}{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'produto_lista' %}">Produtos</a> /</div><h1>{% if produto %}Editar produto{% else %}Novo produto{% endif %}</h1><p>O saldo não é editável: ele nasce das movimentações. Para o estoque inicial, registre uma entrada.</p></div></div>
+<form class="card" method="post" enctype="multipart/form-data">{% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert-form" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="form-grid">{% include "_campos.html" %}</div>
+  <div class="actions"><button class="btn primary" type="submit">Salvar produto</button><a class="btn" href="{% if produto %}{% url 'produto_detalhe' produto.pk %}{% else %}{% url 'produto_lista' %}{% endif %}">Cancelar</a></div>
+</form>
+{% endblock %}

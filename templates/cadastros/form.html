@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}{{ cfg.titulo }}{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'cadastro_lista' slug %}">{{ cfg.titulo }}</a> /</div><h1>{% if obj %}Editar{% else %}Nov{{ cfg.genero }}{% endif %} {{ cfg.singular }}</h1></div></div>
+<form class="card" method="post">{% csrf_token %}{% if form.non_field_errors %}<div class="alert-form" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+<div class="form-grid">{% include "_campos.html" %}</div><div class="actions"><button class="btn primary" type="submit">Salvar</button><a class="btn" href="{% url 'cadastro_lista' slug %}">Cancelar</a></div></form>
+{% endblock %}

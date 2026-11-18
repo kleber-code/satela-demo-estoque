@@ -1,0 +1,29 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Entrar · Estoque Pro</title><link rel="icon" href="{% static 'estoque/favicon.svg' %}" type="image/svg+xml">
+<script>try{var t=localStorage.getItem('tema')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="{% static 'estoque/app.css' %}"></head>
+<body>{% include "_icons.html" %}
+{% if DEMO_MODE %}<div class="demo-banner" role="note">Ambiente de demonstração — dados fictícios</div>{% endif %}
+<main class="login"><div class="login-card">
+  <div class="brand"><span class="brand-mark"><svg class="icon"><use href="#i-box"/></svg></span>Estoque Pro</div>
+  <p class="muted" style="text-align:center;margin:0 0 18px">Controle de estoque para distribuidoras: saldos, compras, alertas e inventário em um só lugar.</p>
+  <div class="card">
+    {% if DEMO_MODE %}
+    <form method="post" action="{% url 'demo' %}">{% csrf_token %}
+      <button class="btn primary block" type="submit" style="min-height:48px;font-size:1.05rem">Entrar na demonstração</button>
+      <p class="small muted" style="margin:10px 0 0;text-align:center">Um clique, sem cadastro. Você entra como <b>operador</b> e pode lançar movimentações, compras e inventários.</p>
+      <p class="small" style="text-align:center;margin:8px 0 0"><button class="btn sm" name="papel" value="leitura" type="submit">Ver como somente leitura</button></p>
+    </form>
+    <div class="sep">ou entre com usuário e senha</div>
+    {% endif %}
+    <form method="post" novalidate>{% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert-form" role="alert">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
+      <div class="field"><label for="id_username">Usuário</label><input class="input" id="id_username" name="username" autocomplete="username" required autocapitalize="none" value="{{ form.username.value|default:'' }}"></div>
+      <div class="field"><label for="id_password">Senha</label><input class="input" id="id_password" name="password" type="password" autocomplete="current-password" required></div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="btn block" type="submit">Entrar</button>
+    </form>
+  </div>
+  <ul class="feat"><li>Saldo sempre calculado pelas movimentações</li><li>Kardex, curva ABC e alertas automáticos</li><li>API JSON com token e exportação em CSV</li></ul>
+</div></main></body></html>

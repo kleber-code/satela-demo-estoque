@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block titulo %}Não encontrado{% endblock %}
+{% block conteudo %}<div class="card empty"><svg class="icon"><use href="#i-empty"/></svg><h1>Página não encontrada</h1><p>O endereço não existe ou o registro foi removido.</p><a class="btn primary" href="{% url 'dashboard' %}">Voltar ao painel</a></div>{% endblock %}

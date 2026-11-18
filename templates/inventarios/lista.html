@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block titulo %}Inventário{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><h1>Inventário e contagem física</h1><p>Lance a contagem por depósito; ao finalizar, as divergências viram ajustes de estoque automaticamente.</p></div>{% if pode_editar %}<a class="btn primary" href="{% url 'inventario_novo' %}"><svg class="icon"><use href="#i-plus"/></svg>Novo inventário</a>{% endif %}</div>
+<div class="card flush"><div class="table-wrap"><table><thead><tr><th>Inventário</th><th>Depósito</th><th>Status</th><th>Progresso</th><th class="num">Divergências</th><th>Aberto em</th></tr></thead><tbody>
+{% for i in pagina %}<tr><td><a href="{% url 'inventario_detalhe' i.pk %}"><b>{{ i.numero }}</b></a></td><td>{{ i.deposito.nome }}</td><td><span class="badge {% if i.status == 'finalizado' %}b-ok{% else %}b-warn{% endif %}">{{ i.get_status_display }}</span></td>
+<td><div class="progress" role="img" aria-label="{{ i.contados }} de {{ i.n }} contados"><i style="width:{% widthratio i.contados i.n 100 %}%"></i></div><span class="small muted">{{ i.contados }}/{{ i.n }}</span></td><td class="num">{{ i.divergentes }}</td><td class="small">{{ i.criado_em|date:"d/m/Y" }}</td></tr>
+{% empty %}<tr><td colspan="6"><div class="empty"><svg class="icon"><use href="#i-empty"/></svg><p>Nenhum inventário ainda.</p></div></td></tr>{% endfor %}</tbody></table></div>{% include "_paginacao.html" %}</div>
+{% endblock %}

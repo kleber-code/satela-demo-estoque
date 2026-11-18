@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}{% if pedido %}Editar {{ pedido.numero }}{% else %}Novo pedido{% endif %}{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'compra_lista' %}">Compras</a> /</div><h1>{% if pedido %}Editar {{ pedido.numero }}{% else %}Novo pedido de compra{% endif %}</h1><p>O pedido é salvo como rascunho. Depois você envia ao fornecedor e registra o recebimento.</p></div></div>
+<form class="card" method="post">{% csrf_token %}{% if form.non_field_errors %}<div class="alert-form" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+<div class="form-grid">{% include "_campos.html" %}</div>
+<h2 style="margin:8px 0 10px">Itens</h2>
+{{ formset.management_form }}{% if formset.non_form_errors %}<div class="alert-form">{{ formset.non_form_errors }}</div>{% endif %}
+<div class="table-wrap"><table><thead><tr><th style="min-width:260px">Produto</th><th>Quantidade</th><th>Custo unit. (R$)</th><th>Remover</th></tr></thead><tbody id="itens-body">
+{% for f in formset %}<tr>{{ f.id }}<td>{{ f.produto }}{{ f.produto.errors }}</td><td>{{ f.quantidade }}{{ f.quantidade.errors }}</td><td>{{ f.custo_unitario }}{{ f.custo_unitario.errors }}</td><td>{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+<template id="empty-form"><tr><td>{{ formset.empty_form.produto }}</td><td>{{ formset.empty_form.quantidade }}</td><td>{{ formset.empty_form.custo_unitario }}</td><td></td></tr></template>
+<p class="small muted">Deixe o custo em branco para usar o custo cadastrado do produto. Linhas vazias são ignoradas.</p>
+<div class="actions"><button type="button" class="btn" id="add-item"><svg class="icon"><use href="#i-plus"/></svg>Adicionar item</button><button class="btn primary" type="submit">Salvar rascunho</button><a class="btn" href="{% url 'compra_lista' %}">Cancelar</a></div></form>
+{% endblock %}

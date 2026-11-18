@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% load estoque_tags %}
+{% block titulo %}{{ inv.numero }}{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventario_lista' %}">Inventário</a> /</div><h1>{{ inv.numero }} · {{ inv.deposito.nome }} <span class="badge {% if aberto %}b-warn{% else %}b-ok{% endif %}">{{ inv.get_status_display }}</span></h1><p>{{ contados }} de {{ total }} contados · {{ diverg }} divergência{{ diverg|pluralize }}{% if inv.observacao %} · {{ inv.observacao }}{% endif %}</p></div>
+<a class="btn" href="{% url_com export='csv' %}"><svg class="icon"><use href="#i-download"/></svg>CSV</a></div>
+<div class="progress" style="margin-bottom:16px" role="img" aria-label="{{ progresso }}% contado"><i style="width:{{ progresso }}%"></i></div>
+<form class="filters" method="get"><div class="f grow"><label for="q">Buscar</label><input class="input" id="q" type="search" name="q" value="{{ request.GET.q }}"></div>
+<div class="f"><label for="ver">Mostrar</label><select class="input" id="ver" name="ver"><option value="">Todos</option><option value="pendentes" {% if filtro == 'pendentes' %}selected{% endif %}>Pendentes de contagem</option><option value="divergentes" {% if filtro == 'divergentes' %}selected{% endif %}>Divergentes</option></select></div><div class="actions"><button class="btn">Filtrar</button></div></form>
+<form method="post">{% csrf_token %}
+<div class="card flush"><div class="table-wrap"><table><thead><tr><th>Produto</th><th class="num">Saldo no sistema</th><th class="num">Contagem física</th><th class="num">Diferença</th></tr></thead><tbody>
+{% for i in pagina %}<tr><td><b>{{ i.produto.nome }}</b><br><span class="muted small">{{ i.produto.sku }} · {{ i.produto.unidade }}</span></td><td class="num">{{ i.qtd_sistema|milhar }}</td>
+<td class="num">{% if aberto and pode_editar %}<input class="input count-input" type="number" min="0" step="1" inputmode="numeric" name="c_{{ i.pk }}" value="{{ i.qtd_contada|default_if_none:'' }}" aria-label="Contagem de {{ i.produto.nome }}">{% else %}{{ i.qtd_contada|default_if_none:"—" }}{% endif %}</td>
+<td class="num">{% if i.dif is None %}<span class="muted">—</span>{% elif i.dif == 0 %}<span class="badge b-ok">OK</span>{% else %}<span class="{% if i.dif > 0 %}qtd-pos{% else %}qtd-neg{% endif %}">{{ i.dif|sinal }}</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="4"><div class="empty">Nenhum item.</div></td></tr>{% endfor %}</tbody></table></div>{% include "_paginacao.html" %}</div>
+{% if aberto and pode_editar %}<div class="actions" style="margin-top:16px"><button class="btn" name="acao" value="salvar">Salvar contagens</button><button class="btn primary" name="acao" value="finalizar" onclick="return confirm('Finalizar o inventário? Divergências viram ajustes de estoque e a contagem não poderá mais ser alterada.')">Finalizar e gerar ajustes</button></div>
+<p class="small muted">Dica: produtos sem contagem são ignorados na finalização. As contagens da página atual são salvas ao clicar em qualquer botão.</p>{% endif %}</form>
+{% endblock %}

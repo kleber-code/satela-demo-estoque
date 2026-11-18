@@ -1,0 +1,66 @@
+{% load static estoque_tags %}<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{% block titulo %}Painel{% endblock %} · Estoque Pro</title>
+<link rel="icon" href="{% static 'estoque/favicon.svg' %}" type="image/svg+xml">
+<script>try{var t=localStorage.getItem('tema')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="{% static 'estoque/app.css' %}">
+</head>
+<body>
+{% include "_icons.html" %}
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+{% if DEMO_MODE %}<div class="demo-banner" role="note">Ambiente de demonstração — dados fictícios</div>{% endif %}
+<div class="app">
+<aside class="sidebar" id="menu" aria-label="Menu principal">
+  <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark"><svg class="icon"><use href="#i-box"/></svg></span>Estoque Pro</a>
+  {% with rn=request.resolver_match.url_name %}
+  <nav class="nav">
+    <a href="{% url 'dashboard' %}" {% if rn == 'dashboard' %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-home"/></svg>Painel</a>
+    <div class="nav-label">Operação</div>
+    <a href="{% url 'produto_lista' %}" {% if 'produto' in rn %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-box"/></svg>Produtos</a>
+    <a href="{% url 'mov_lista' %}" {% if 'mov_' in rn or 'transferencia' in rn %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-swap"/></svg>Movimentações</a>
+    <a href="{% url 'compra_lista' %}" {% if 'compra' in rn %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-cart"/></svg>Compras</a>
+    <a href="{% url 'inventario_lista' %}" {% if 'inventario' in rn %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-clip"/></svg>Inventário</a>
+    <div class="nav-label">Análises</div>
+    <a href="{% url 'alertas' %}" {% if rn == 'alertas' %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-alert"/></svg>Alertas</a>
+    <a href="{% url 'curva_abc' %}" {% if rn == 'curva_abc' %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-chart"/></svg>Curva ABC</a>
+    <div class="nav-label">Cadastros</div>
+    <a href="{% url 'cadastro_lista' 'categorias' %}" {% if slug == 'categorias' %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-tag"/></svg>Categorias</a>
+    <a href="{% url 'cadastro_lista' 'fornecedores' %}" {% if slug == 'fornecedores' %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-truck"/></svg>Fornecedores</a>
+    <a href="{% url 'cadastro_lista' 'depositos' %}" {% if slug == 'depositos' %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-warehouse"/></svg>Depósitos</a>
+    <div class="nav-label">Sistema</div>
+    <a href="{% url 'api_docs' %}" {% if rn == 'api_docs' %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-code"/></svg>API</a>
+    {% if eh_admin %}<a href="{% url 'usuarios' %}" {% if rn == 'usuarios' %}aria-current="page"{% endif %}><svg class="icon"><use href="#i-users"/></svg>Usuários e papéis</a>{% endif %}
+  </nav>
+  {% endwith %}
+</aside>
+<div class="main">
+  <header class="topbar">
+    <button class="iconbtn menu-btn" id="menu-toggle" aria-label="Abrir menu" aria-controls="menu" aria-expanded="false"><svg class="icon"><use href="#i-menu"/></svg></button>
+    <form class="search" action="{% url 'produto_lista' %}" role="search">
+      <svg class="icon"><use href="#i-search"/></svg>
+      <label class="sr-only" for="busca-global">Buscar produtos</label>
+      <input class="input" id="busca-global" type="search" name="q" placeholder="Buscar produto por nome ou SKU…" value="{{ request.GET.q }}">
+    </form>
+    <span class="spacer"></span>
+    <button class="iconbtn" id="theme-toggle" aria-label="Alternar tema claro/escuro" title="Alternar tema"><svg class="icon"><use href="#i-sun"/></svg></button>
+    {% if user.is_authenticated %}
+    <div class="userbox">
+      <span class="avatar" aria-hidden="true">{{ user.username|slice:":1"|upper }}</span>
+      <span class="who"><b>{{ user.get_full_name|default:user.username }}</b><br><span class="small muted">{{ papel.label|default:papel }}</span></span>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="iconbtn" aria-label="Sair" title="Sair"><svg class="icon"><use href="#i-logout"/></svg></button></form>
+    </div>
+    {% endif %}
+  </header>
+  <main class="content" id="conteudo">
+    {% if messages %}<ul class="messages" role="status">{% for m in messages %}<li class="{{ m.tags }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+    {% block conteudo %}{% endblock %}
+  </main>
+</div>
+</div>
+<script src="{% static 'estoque/app.js' %}" defer></script>
+</body>
+</html>

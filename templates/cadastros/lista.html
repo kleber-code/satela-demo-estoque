@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}{{ cfg.titulo }}{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><h1>{{ cfg.titulo }}</h1><p>{{ cfg.subtitulo }}</p></div>{% if pode_editar %}<a class="btn primary" href="{% url 'cadastro_novo' slug %}"><svg class="icon"><use href="#i-plus"/></svg>Nov{{ cfg.genero }} {{ cfg.singular }}</a>{% endif %}</div>
+<form class="filters" method="get"><div class="f grow"><label for="q">Buscar</label><input class="input" id="q" type="search" name="q" value="{{ request.GET.q }}"></div><div class="actions"><button class="btn primary">Buscar</button></div></form>
+<div class="card flush"><div class="table-wrap"><table><thead><tr>{% for c in cfg.colunas %}<th {% if forloop.last %}class="num"{% endif %}>{{ c }}</th>{% endfor %}<th><span class="sr-only">Ações</span></th></tr></thead><tbody>
+{% for obj, cels in linhas %}<tr>{% for c in cels %}<td {% if forloop.last %}class="num"{% endif %}>{% if forloop.first %}<b>{{ c }}</b>{% else %}{{ c }}{% endif %}</td>{% endfor %}
+<td class="num">{% if pode_editar %}<a class="btn sm" href="{% url 'cadastro_editar' slug obj.pk %}">Editar</a>{% endif %}{% if eh_admin %} <form class="inline" method="post" action="{% url 'cadastro_excluir' slug obj.pk %}" data-confirm="Excluir este cadastro?">{% csrf_token %}<button class="btn sm danger">Excluir</button></form>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="{{ cfg.colunas|length|add:1 }}"><div class="empty"><svg class="icon"><use href="#i-empty"/></svg><p>Nada por aqui ainda.</p></div></td></tr>{% endfor %}</tbody></table></div>{% include "_paginacao.html" %}</div>
+{% endblock %}

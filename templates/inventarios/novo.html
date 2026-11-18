@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block titulo %}Novo inventário{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'inventario_lista' %}">Inventário</a> /</div><h1>Novo inventário</h1><p>Cria a lista de contagem com todos os produtos ativos do depósito escolhido.</p></div></div>
+<form class="card" method="post" style="max-width:640px">{% csrf_token %}{% if form.non_field_errors %}<div class="alert-form" role="alert">{{ form.non_field_errors }}</div>{% endif %}{% include "_campos.html" %}<div class="actions"><button class="btn primary">Abrir inventário</button><a class="btn" href="{% url 'inventario_lista' %}">Cancelar</a></div></form>
+{% endblock %}

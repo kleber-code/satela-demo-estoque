@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}API{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><h1>API JSON (somente leitura)</h1><p>Integre o estoque com site, BI ou ERP. Autenticação por token no cabeçalho <code>Authorization</code>.</p></div></div>
+<section class="card" style="margin-bottom:16px"><h2 style="margin-bottom:8px">Seu token</h2><code class="token">{{ token.chave }}</code>
+{% if usuario_demo %}<p class="small muted">Na demonstração o token é compartilhado e dá acesso apenas a dados fictícios.</p>{% else %}<form method="post" data-confirm="Gerar novo token? O atual deixará de funcionar." style="margin-top:10px">{% csrf_token %}<button class="btn sm">Gerar novo token</button></form>{% endif %}</section>
+<section class="card"><h2>Endpoints</h2>
+<h3 style="margin-top:14px"><code>GET /api/produtos/</code></h3><p class="muted">Lista produtos com saldo calculado. Filtros: <code>q</code>, <code>categoria</code>, <code>situacao</code> (ok, minimo, ruptura, sem_giro), <code>page</code>, <code>page_size</code> (até 200).</p>
+<pre>curl -H "Authorization: Bearer {{ token.chave }}" \
+  "{{ host }}/api/produtos/?situacao=minimo"</pre>
+<h3 style="margin-top:14px"><code>GET /api/saldo/</code></h3><p class="muted">Saldo por produto e depósito. Filtros: <code>sku</code>, <code>deposito</code> (código), <code>page</code>, <code>page_size</code>.</p>
+<pre>curl -H "Authorization: Bearer {{ token.chave }}" \
+  "{{ host }}/api/saldo/?sku=MER-0001"</pre>
+<p class="small muted">Respostas: <code>{"count", "page", "pages", "page_size", "results": [...]}</code>. Sem token ou token inválido: HTTP 401.</p></section>
+{% endblock %}

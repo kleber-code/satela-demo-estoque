@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% load estoque_tags %}
+{% block titulo %}{{ pedido.numero }}{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><div class="crumbs"><a href="{% url 'compra_lista' %}">Compras</a> /</div><h1>{{ pedido.numero }} <span class="badge {% if pedido.status == 'recebido' %}b-ok{% elif pedido.status == 'enviado' %}b-info{% elif pedido.status == 'cancelado' %}b-danger{% else %}b-mute{% endif %}">{{ pedido.get_status_display }}</span></h1><p>{{ pedido.fornecedor.nome }} → {{ pedido.deposito.nome }}</p></div>
+{% if pode_editar %}<div class="actions">
+{% if pedido.status == 'rascunho' %}<a class="btn" href="{% url 'compra_editar' pedido.pk %}">Editar itens</a><form class="inline" method="post" action="{% url 'compra_acao' pedido.pk 'enviar' %}">{% csrf_token %}<button class="btn primary">Enviar ao fornecedor</button></form>{% endif %}
+{% if pedido.status == 'enviado' %}<form class="inline" method="post" action="{% url 'compra_acao' pedido.pk 'receber' %}" data-confirm="Confirmar o recebimento? As entradas serão lançadas no estoque.">{% csrf_token %}<button class="btn primary">Registrar recebimento</button></form>{% endif %}
+{% if pedido.status == 'rascunho' or pedido.status == 'enviado' %}<form class="inline" method="post" action="{% url 'compra_acao' pedido.pk 'cancelar' %}" data-confirm="Cancelar este pedido?">{% csrf_token %}<button class="btn danger">Cancelar</button></form>{% endif %}</div>{% endif %}</div>
+<div class="grid g2">
+<section class="card flush"><div class="table-wrap"><table><thead><tr><th>Produto</th><th class="num">Quantidade</th><th class="num">Custo unit.</th><th class="num">Subtotal</th></tr></thead><tbody>
+{% for i in itens %}<tr><td><a href="{% url 'produto_detalhe' i.produto_id %}"><b>{{ i.produto.nome }}</b></a><br><span class="muted small">{{ i.produto.sku }}</span></td><td class="num">{{ i.quantidade|milhar }} {{ i.produto.unidade }}</td><td class="num">{{ i.custo_unitario|brl }}</td><td class="num">{{ i.subtotal|brl }}</td></tr>{% endfor %}
+<tr><td colspan="3" class="num"><b>Total</b></td><td class="num"><b>{{ total|brl }}</b></td></tr></tbody></table></div></section>
+<section class="card"><h2 style="margin-bottom:12px">Andamento</h2><dl class="dl"><dt>Criado em</dt><dd>{{ pedido.criado_em|date:"d/m/Y H:i" }}</dd><dt>Criado por</dt><dd>{{ pedido.usuario.username|default:"sistema" }}</dd><dt>Enviado em</dt><dd>{{ pedido.enviado_em|date:"d/m/Y H:i"|default:"—" }}</dd><dt>Previsão</dt><dd>{{ pedido.previsao_entrega|date:"d/m/Y"|default:"—" }}</dd><dt>Recebido em</dt><dd>{{ pedido.recebido_em|date:"d/m/Y H:i"|default:"—" }}</dd><dt>Observação</dt><dd>{{ pedido.observacao|default:"—" }}</dd></dl>
+{% if pedido.status == 'recebido' %}<p class="small muted" style="margin-top:12px">As entradas geradas aparecem no <a href="{% url 'mov_lista' %}?q={{ pedido.numero }}">histórico de movimentações</a>.</p>{% endif %}</section></div>
+{% endblock %}

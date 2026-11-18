@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% load estoque_tags %}
+{% block titulo %}Produtos{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><h1>Produtos</h1><p>{{ total }} produto{{ total|pluralize }} encontrado{{ total|pluralize }}. O saldo é calculado a partir das movimentações.</p></div>
+  <div class="actions"><a class="btn" href="{% url_com export='csv' %}"><svg class="icon"><use href="#i-download"/></svg>Exportar CSV</a>{% if pode_editar %}<a class="btn primary" href="{% url 'produto_novo' %}"><svg class="icon"><use href="#i-plus"/></svg>Novo produto</a>{% endif %}</div></div>
+<form class="filters card" method="get">
+  <div class="f grow"><label for="q">Busca</label><input class="input" id="q" name="q" type="search" value="{{ request.GET.q }}" placeholder="Nome ou SKU"></div>
+  <div class="f"><label for="categoria">Categoria</label><select class="input" id="categoria" name="categoria"><option value="">Todas</option>{% for c in categorias %}<option value="{{ c.pk }}" {% if request.GET.categoria == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}</select></div>
+  <div class="f"><label for="situacao">Situação</label><select class="input" id="situacao" name="situacao"><option value="">Todas</option>
+    <option value="ok" {% if request.GET.situacao == 'ok' %}selected{% endif %}>Normal</option><option value="minimo" {% if request.GET.situacao == 'minimo' %}selected{% endif %}>Abaixo do mínimo</option><option value="ruptura" {% if request.GET.situacao == 'ruptura' %}selected{% endif %}>Ruptura</option><option value="sem_giro" {% if request.GET.situacao == 'sem_giro' %}selected{% endif %}>Sem giro</option></select></div>
+  <div class="f"><label for="deposito">Saldo no depósito</label><select class="input" id="deposito" name="deposito"><option value="">Todos</option>{% for d in depositos %}<option value="{{ d.pk }}" {% if request.GET.deposito == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.nome }}</option>{% endfor %}</select></div>
+  <div class="f"><label for="ordem">Ordenar por</label><select class="input" id="ordem" name="ordem">{% for k,l in ordenacoes %}<option value="{{ k }}" {% if request.GET.ordem == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div class="actions"><button class="btn primary" type="submit">Filtrar</button>{% if request.GET %}<a class="btn" href="{% url 'produto_lista' %}">Limpar</a>{% endif %}</div>
+</form>
+<div class="card flush"><div class="table-wrap"><table>
+<thead><tr><th>Produto</th><th>Categoria</th><th class="num">Custo</th><th class="num">Preço</th><th class="num">Saldo{% if deposito_sel %} ({{ deposito_sel.codigo }}){% endif %}</th><th class="num">Mín.</th><th class="num">Valor em estoque</th><th>Situação</th></tr></thead><tbody>
+{% for p in pagina %}<tr>
+<td><div class="prod">{% if p.foto %}<img class="thumb" src="{{ p.foto.url }}" alt="" loading="lazy">{% else %}<span class="thumb t{{ p.cor_idx }}" aria-hidden="true">{{ p.iniciais }}</span>{% endif %}<span><a href="{% url 'produto_detalhe' p.pk %}"><b>{{ p.nome }}</b></a><span class="muted small">{{ p.sku }} · {{ p.unidade }}</span></span></div></td>
+<td>{{ p.categoria.nome }}</td><td class="num">{{ p.custo|brl }}</td><td class="num">{{ p.preco|brl }}</td>
+<td class="num"><b>{% if deposito_sel %}{{ p.saldo_dep|milhar }}{% else %}{{ p.saldo|milhar }}{% endif %}</b></td><td class="num muted">{{ p.estoque_minimo }}</td><td class="num">{{ p.valor_estoque|brl }}</td><td>{% badge_situacao p %}{% if not p.ativo %} <span class="badge b-mute">Inativo</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="8"><div class="empty"><svg class="icon"><use href="#i-empty"/></svg><p>Nenhum produto encontrado com esses filtros.</p><a class="btn" href="{% url 'produto_lista' %}">Limpar filtros</a></div></td></tr>{% endfor %}
+</tbody></table></div>{% include "_paginacao.html" %}</div>
+{% endblock %}

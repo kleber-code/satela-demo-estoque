@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load estoque_tags %}
+{% block titulo %}Compras{% endblock %}
+{% block conteudo %}
+<div class="page-head"><div><h1>Pedidos de compra</h1><p>Rascunho → enviado → recebido. O recebimento gera as entradas no estoque automaticamente.</p></div>
+<div class="actions"><a class="btn" href="{% url_com export='csv' %}"><svg class="icon"><use href="#i-download"/></svg>CSV</a>{% if pode_editar %}<a class="btn primary" href="{% url 'compra_novo' %}"><svg class="icon"><use href="#i-plus"/></svg>Novo pedido</a>{% endif %}</div></div>
+<div class="tabs" role="navigation" aria-label="Status"><a href="{% url 'compra_lista' %}" {% if not request.GET.status %}aria-current="page"{% endif %}>Todos</a>
+{% for k,l in status_opcoes %}<a href="?status={{ k }}" {% if request.GET.status == k %}aria-current="page"{% endif %}>{{ l }}{% for sk, n in contagem.items %}{% if sk == k %} ({{ n }}){% endif %}{% endfor %}</a>{% endfor %}</div>
+<div class="card flush"><div class="table-wrap"><table><thead><tr><th>Pedido</th><th>Fornecedor</th><th>Destino</th><th>Status</th><th class="num">Itens</th><th class="num">Valor</th><th>Criado em</th></tr></thead><tbody>
+{% for p in pagina %}<tr><td><a href="{% url 'compra_detalhe' p.pk %}"><b>{{ p.numero }}</b></a></td><td>{{ p.fornecedor.nome }}</td><td>{{ p.deposito.codigo }}</td>
+<td><span class="badge {% if p.status == 'recebido' %}b-ok{% elif p.status == 'enviado' %}b-info{% elif p.status == 'cancelado' %}b-danger{% else %}b-mute{% endif %}">{{ p.get_status_display }}</span></td><td class="num">{{ p.n_itens }}</td><td class="num">{{ p.valor|default:0|brl }}</td><td class="small">{{ p.criado_em|date:"d/m/Y" }}</td></tr>
+{% empty %}<tr><td colspan="7"><div class="empty"><svg class="icon"><use href="#i-empty"/></svg><p>Nenhum pedido.</p></div></td></tr>{% endfor %}</tbody></table></div>{% include "_paginacao.html" %}</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% if pagina.paginator.num_pages > 1 %}
+<div class="pager">
+  <span class="muted small">Página {{ pagina.number }} de {{ pagina.paginator.num_pages }} · {{ pagina.paginator.count }} registro{{ pagina.paginator.count|pluralize }}</span>
+  <nav aria-label="Paginação">
+    {% if pagina.has_previous %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ pagina.previous_page_number }}" rel="prev">‹ Anterior</a>{% endif %}
+    {% for n in pagina.paginator.page_range %}{% if n == pagina.number %}<span class="cur" aria-current="page">{{ n }}</span>{% elif n == 1 or n == pagina.paginator.num_pages or n >= pagina.number|add:"-2" and n <= pagina.number|add:"2" %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ n }}">{{ n }}</a>{% endif %}{% endfor %}
+    {% if pagina.has_next %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ pagina.next_page_number }}" rel="next">Próxima ›</a>{% endif %}
+  </nav>
+</div>
+{% elif pagina.paginator.count %}<div class="pager"><span class="muted small">{{ pagina.paginator.count }} registro{{ pagina.paginator.count|pluralize }}</span></div>{% endif %}
